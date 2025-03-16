@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elon2 - PDF Paraphraser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Reset and global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb, #d4fc79); /* Soft blue to pastel green gradient */
+            min-height: 100vh;
+            color: #2c3e50;
+            overflow-x: hidden;
+        }
+
+        /* Logo */
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px; /* Adjust size as needed */
+            height: auto;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .logo img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Main container with no tilt effect */
+        .container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 
+                       0 0 20px rgba(52, 152, 219, 0.2);
+            width: 90%;
+            max-width: 750px;
+            text-align: center;
+            margin: 2rem auto;
+            transition: box-shadow 0.6s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 
+                       0 0 30px rgba(52, 152, 219, 0.3);
+        }
+
+        h1 {
+            color: #3498db;
+            font-size: 2.8rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .upload-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin: 0.75rem 0;
+        }
+
+        input[type="file"] {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa; /* Light gray background */
+            color: #2c3e50;
+            font-size: 1.1rem;
+            width: 100%;
+            max-width: 350px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            padding-left: 2.5rem;
+        }
+
+        input[type="file"]:hover {
+            transform: scale(1.05);
+            background: #e9ecef; /* Slightly darker on hover */
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 1.2rem;
+        }
+
+        select {
+            padding: 0.85rem;
+            padding-left: 2.5rem;
+            margin: 0.75rem 0;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            width: 100%;
+            max-width: 350px;
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #3498db 50%), linear-gradient(135deg, #3498db 50%, transparent 50%);
+            background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px), calc(100% - 2.5em) 0.5em;
+            background-size: 5px 5px, 5px 5px, 1px 1.5em;
+            background-repeat: no-repeat;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        select:hover {
+            transform: scale(1.05);
+            background: #e9ecef;
+        }
+
+        .select-group {
+            position: relative;
+        }
+
+        .select-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 1.2rem;
+        }
+
+        button {
+            padding: 0.85rem 1.8rem;
+            margin: 0.5rem;
+            background: linear-gradient(45deg, #3498db, #9b59b6); /* Softer purple-blue gradient */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #2980b9, #8e44ad);
+        }
+
+        button i {
+            font-size: 1.2rem;
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #2c3e50;
+        }
+
+        .copy-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            margin-top: 0.75rem;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #e74c3c, #a93226);
+        }
+
+        /* About Us Section */
+        .about-us, .website-info {
+            width: 90%;
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .about-us h2, .website-info h2 {
+            color: #3498db;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .founders {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .founder-card {
+            background: #e9ecef;
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 200px;
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .founder-card:hover {
+            transform: translateY(-10px);
+            background: #dfe4ea;
+        }
+
+        .founder-card i {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
+
+        .founder-card h3 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .founder-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Website Info Section */
+        .website-info p {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .website-info ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .website-info ul li {
+            font-size: 1rem;
+            color: #6c757d;
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .website-info ul li i {
+            color: #3498db;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <div class="logo">
+        <img src="elon2-logo.png" alt="Elon2 Logo" onerror="this.src='https://via.placeholder.com/100';"> <!-- Placeholder if logo is missing -->
+    </div>
+
+    <!-- Paraphraser Section -->
+    <div class="container">
+        <h1>Elon2 - PDF Paraphraser</h1>
+        <div class="upload-section">
+            <form id="paraphraseForm" enctype="multipart/form-data">
+                <div class="input-group">
+                    <i class="fas fa-file-upload"></i>
+                    <input type="file" id="pdfUpload" name="file" accept=".pdf" required>
+                </div>
+                <div class="select-group">
+                    <i class="fas fa-list-ul"></i>
+                    <select id="methodSelect" name="method">
+                        <option value="simple">Simple Paraphrase</option>
+                        <option value="academic">Academic Paraphrase</option>
+                        <option value="creative">Creative Paraphrase</option>
+                        <option value="grammar">Grammar Check</option>
+                        <option value="random">Random Paraphrase</option>
+                    </select>
+                </div>
+                <button type="submit"><i class="fas fa-sync-alt"></i> Paraphrase</button>
+            </form>
+        </div>
+        <div id="result" class="result" style="display: none;"></div>
+        <button id="copyBtn" class="copy-btn" onclick="copyToClipboard()" style="display: none;"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="about-us">
+        <h2>About Us</h2>
+        <div class="founders">
+            <div class="founder-card">
+                <i class="fas fa-user-tie"></i>
+                <h3>Dr. Mohd. Naved</h3>
+                <p>Professor & Guide</p>
+            </div>
+            <div class="founder-card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Gourab Chatterjee</h3>
+                <p>Student</p>
+            </div>
+            <div class="founder-card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Atul Aniket</h3>
+                <p>Student</p>
+            </div>
+            <div class="founder-card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Aayush Sharma</h3>
+                <p>Student</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Website Info Section -->
+    <div class="website-info">
+        <h2>About Elon2</h2>
+        <p>Elon2 is a cutting-edge PDF paraphrasing tool designed to transform your documents with ease and precision. Whether you're a student, researcher, or professional, Elon2 offers a seamless way to rephrase PDFs in various styles to suit your needs.</p>
+        <p>We provide five distinct paraphrasing styles to cater to different use cases:</p>
+        <ul>
+            <li><i class="fas fa-feather-alt"></i> <strong>Simple Paraphrase:</strong> Basic synonym replacement for a straightforward rephrasing.</li>
+            <li><i class="fas fa-book"></i> <strong>Academic Paraphrase:</strong> Formal rephrasing with capitalized key terms, ideal for research papers.</li>
+            <li><i class="fas fa-paint-brush"></i> <strong>Creative Paraphrase:</strong> Adds imaginative flair with descriptive words and shuffled sentences.</li>
+            <li><i class="fas fa-check-circle"></i> <strong>Grammar Check:</strong> Corrects capitalization and punctuation for polished text.</li>
+            <li><i class="fas fa-random"></i> <strong>Random Paraphrase:</strong> Fully shuffled words for a unique, chaotic output.</li>
+        </ul>
+    </div>
+
+    <script>
+        document.getElementById('paraphraseForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/paraphrase', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                const copyBtn = document.getElementById('copyBtn');
+                if (data.error) {
+                    resultDiv.innerText = data.error;
+                    resultDiv.style.display = 'block';
+                    copyBtn.style.display = 'none';
+                } else {
+                    resultDiv.innerText = data.paraphrased_text;
+                    resultDiv.style.display = 'block';
+                    copyBtn.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerText = `Error: ${error.message}`;
+                resultDiv.style.display = 'block';
+                document.getElementById('copyBtn').style.display = 'none';
+            });
+        });
+
+        function copyToClipboard() {
+            const resultDiv = document.getElementById('result');
+            const range = document.createRange();
+            range.selectNode(resultDiv);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('Text copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
